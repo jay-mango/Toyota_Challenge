@@ -12,6 +12,7 @@ class Control:
     def __init__(self, robot : Robot):
         ''' Initializes the control object by storing the robot reference. '''
         self.robot = robot
+        self.robot.last_key_pressed = None
         self.imu = IMU(self.robot)
 
     def set_cmd_vel(self, velocity_x : float, velocity_phi : float, duration : float):
@@ -175,7 +176,7 @@ class Control:
                     key_char = key.char
                 except AttributeError:
                     key_char = str(key)
-
+                self.robot.last_key_pressed = key.char
                 pressed_keys.add(key_char)
 
             def on_release(key):

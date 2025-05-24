@@ -33,54 +33,89 @@ if challengeLevel <= 2:
     rclpy.spin_once(robot, timeout_sec=0.1)
 
 
-# === Helper Function: Checks if there's an obstacle ahead ===
-def is_obstacle_ahead(lidar, threshold, cone_width):
+# === Helper Function: Check obstacle in direction ===
+def is_obstacle_in_direction(lidar, direction, threshold=0.5, cone_width=15):
     """
-    Checks if an obstacle is detected in front of the robot using LIDAR.
+    Checks for an obstacle in the given direction using LiDAR.
 
     Args:
         lidar (Lidar): Lidar object
-        threshold (float): Distance in meters to consider "too close"
-        cone_width (int): Degrees to the left/right of center to scan
+        direction (str): "forward", "backward", "left", or "right"
+        threshold (float): Distance (m) considered "too close"
+        cone_width (int): Degrees to scan left/right of center
 
     Returns:
-        bool: True if something is within the threshold distance
+        bool: True if obstacle detected in that direction
     """
+    direction_to_angle = {
+        "forward": 0,
+        "backward": 180,
+        "left": 90,
+        "right": 270
+    }
+
+    if direction not in direction_to_angle:
+        return False  # Invalid or idle direction
+
     scan = lidar.checkScan()
-    min_dist, angle = lidar.detect_obstacle_in_cone(scan, threshold, 0, cone_width)
+    min_dist, _ = lidar.detect_obstacle_in_cone(scan, threshold, direction_to_angle[direction], cone_width)
     return min_dist != -1
 
-# Main Challenge Stuff
 try:
     if challengeLevel == 0:
         while rclpy.ok():
             rclpy.spin_once(robot, timeout_sec=0.1)
             time.sleep(0.1)
             # Challenge 0 is pure keyboard control, you do not need to change this it is just for your own testing
-            
 
+    # === Main Challenge Logic for Level 1 ===
     if challengeLevel == 1:
+        movement_mode = None  # Tracks current direction of motion: "forward", "backward", etc.
+
         while rclpy.ok():
             rclpy.spin_once(robot, timeout_sec=0.1)
             time.sleep(0.1)
-            # Write your solution here for challenge level 1
-            # It is recommended you use functions for aspects of the challenge that will be resused in later challenges
-            # For example, create a function that will detect if the robot is too close to a wall
 
-            dist_to_wall = 0.50 # 30 cm from the wall
-            cone_angle = 10      # 20 degrees from centre
-            backing = False
+            # === Determine movement direction based on key press ===
+            key = robot.last_key_pressed  # <-- You must expose this in Control.py (see below)
 
+            if key == 'w':
+                movement_mode = "forward"
+            elif key == 's':
+                movement_mode = "backward"
+            elif key == 'a':
+                movement_mode = "left"
+            elif key == 'd':
+                movement_mode = "right"
+            else:
+                movement_mode = None
 
-            if is_obstacle_ahead(lidar, dist_to_wall, cone_angle):
-                logging.configure_logging(lidar)
+            # === Only block movement if obstacle in same direction ===
+            if movement_mode and is_obstacle_in_direction(lidar, movement_mode):
+                print(f"\n🚨 Obstacle detected while moving {movement_mode} — stopping and backing up.")
+
+                # Stop movement
                 control.stop_keyboard_input()
                 control.stop_keyboard_control()
-                control.set_cmd_vel(0.0, 0.0, 0.5)   # Stop
-                control.set_cmd_vel(-0.1, 0.0, 3.0)  # Back up
+                control.set_cmd_vel(0.0, 0.0, 0.5)
+
+                # Back up safely (always backwards)
+                if movement_mode == "forward":
+                    control.set_cmd_vel(-0.1, 0.0, 1.5)
+                elif movement_mode == "backward":
+                    control.set_cmd_vel(0.1, 0.0, 1.5)
+                elif movement_mode == "left":
+                    control.set_cmd_vel(0.0, -0.4, 1.5)
+                elif movement_mode == "right":
+                    control.set_cmd_vel(0.0, 0.4, 1.5)
+
+                # Resume keyboard control
                 control.start_keyboard_input()
                 control.start_keyboard_control()
-                print("\n", lidar.last_min_dist_index)
+
+                # Clear movement mode to wait for next key
+                movement_mode = None
+
 
     if challengeLevel == 2:
         while rclpy.ok():

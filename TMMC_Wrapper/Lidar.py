@@ -5,6 +5,8 @@ class Lidar:
     def __init__(self, robot : Robot):
         '''Initializes the Lidar object by storing a reference to the provided robot. '''
         self.robot = robot
+        self.last_min_dist_index = -1  # initialize with invalid value
+
 
     def checkScan(self) -> LaserScan:
         ''' Waits until a new scan message is received and returns that scan message. '''
@@ -49,20 +51,28 @@ class Lidar:
                 relevent_range = scan.ranges[0:360]
                 min_dist = min(relevent_range)
                 min_dist_index = relevent_range.index(min_dist)
+                self.last_min_dist_index = min_dist_index
+
             elif right > left:
                 relevent_1 = scan.ranges[0:left]
                 relevent_2 = scan.ranges[right: 360]
                 relevent_range = relevent_1 + relevent_2
                 min_dist = min(relevent_range)
                 min_dist_index = relevent_range.index(min_dist)
+                self.last_min_dist_index = min_dist_index
+
                 print(min_dist_index)
                 if min_dist_index > left:
                     min_dist_index = min_dist_index + right - left
+                    self.last_min_dist_index = min_dist_index
+
             else:
                 relevent_range = scan.ranges[right:left]
                 min_dist = min(relevent_range)
                 min_dist_index = relevent_range.index(min_dist)
                 min_dist_index = min_dist_index + right
+                self.last_min_dist_index = min_dist_index
+
             
             min_dist_angle = min_dist_index
         else:
