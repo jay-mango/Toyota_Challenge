@@ -14,13 +14,12 @@ from TMMC_Wrapper.IMU import IMU               # (Used in Level 3+)
 from TMMC_Wrapper.Logging import Logging       # (Optional: for debugging)
 
 # === Configuration ===
-challengeLevel = 1               # Set this to 1 to run Level 1 logic
-is_SIM = False                    # True = simulation, False = real robot
+challengeLevel = 2               # Set this to 1 or 2 to run the desired level
+is_SIM = False                   # True = simulation, False = real robot
 Debug = False                    # True = print extra info
 
 # === Initialize the robot and interfaces ===
 robot = Robot(IS_SIM=is_SIM, DEBUG=Debug)
-
 control = Control(robot)
 camera = Camera(robot)
 imu = IMU(robot)
@@ -32,115 +31,91 @@ if challengeLevel <= 2:
     control.start_keyboard_control()
     rclpy.spin_once(robot, timeout_sec=0.1)
 
-
-# === Helper Function: Check obstacle in direction ===
-def is_obstacle_in_direction(lidar, direction, threshold=0.5, cone_width=15):
+# === Helper Function: Checks if there's an obstacle ahead ===
+def is_obstacle_ahead(lidar, threshold, cone_width):
     """
-    Checks for an obstacle in the given direction using LiDAR.
+    Checks if an obstacle is detected in front of the robot using LIDAR.
 
     Args:
         lidar (Lidar): Lidar object
-        direction (str): "forward", "backward", "left", or "right"
-        threshold (float): Distance (m) considered "too close"
-        cone_width (int): Degrees to scan left/right of center
+        threshold (float): Distance in meters to consider "too close"
+        cone_width (int): Degrees to the left/right of center to scan
 
     Returns:
-        bool: True if obstacle detected in that direction
+        bool: True if something is within the threshold distance
     """
-    direction_to_angle = {
-        "forward": 0,
-        "backward": 180,
-        "left": 90,
-        "right": 270
-    }
-
-    if direction not in direction_to_angle:
-        return False  # Invalid or idle direction
-
     scan = lidar.checkScan()
-    min_dist, _ = lidar.detect_obstacle_in_cone(scan, threshold, direction_to_angle[direction], cone_width)
+    min_dist, angle = lidar.detect_obstacle_in_cone(scan, threshold, 0, cone_width)
     return min_dist != -1
 
+# === Main Challenge Logic ===
 try:
     if challengeLevel == 0:
         while rclpy.ok():
             rclpy.spin_once(robot, timeout_sec=0.1)
             time.sleep(0.1)
-            # Challenge 0 is pure keyboard control, you do not need to change this it is just for your own testing
+            # Level 0 = Manual keyboard control only
 
-    # === Main Challenge Logic for Level 1 ===
     if challengeLevel == 1:
-        movement_mode = None  # Tracks current direction of motion: "forward", "backward", etc.
-
         while rclpy.ok():
             rclpy.spin_once(robot, timeout_sec=0.1)
-            time.sleep(0.1)
+            time.sleep(0.01)
 
-            # === Determine movement direction based on key press ===
-            key = robot.last_key_pressed  # <-- You must expose this in Control.py (see below)
+            dist_to_wall = 0.40   # 15 cm from front of robot
+            cone_angle = 10       # ±10° cone for obstacle detection
 
-            if key == 'w':
-                movement_mode = "forward"
-            elif key == 's':
-                movement_mode = "backward"
-            elif key == 'a':
-                movement_mode = "left"
-            elif key == 'd':
-                movement_mode = "right"
-            else:
-                movement_mode = None
-
-            # === Only block movement if obstacle in same direction ===
-            if movement_mode and is_obstacle_in_direction(lidar, movement_mode):
-                print(f"\n🚨 Obstacle detected while moving {movement_mode} — stopping and backing up.")
-
-                # Stop movement
-                control.stop_keyboard_input()
-                control.stop_keyboard_control()
-                control.set_cmd_vel(0.0, 0.0, 0.5)
-
-                # Back up safely (always backwards)
-                if movement_mode == "forward":
-                    control.set_cmd_vel(-0.1, 0.0, 1.5)
-                elif movement_mode == "backward":
-                    control.set_cmd_vel(0.1, 0.0, 1.5)
-                elif movement_mode == "left":
-                    control.set_cmd_vel(0.0, -0.4, 1.5)
-                elif movement_mode == "right":
-                    control.set_cmd_vel(0.0, 0.4, 1.5)
-
-                # Resume keyboard control
-                control.start_keyboard_input()
-                control.start_keyboard_control()
-
-                # Clear movement mode to wait for next key
-                movement_mode = None
-
+            if is_obstacle_ahead(lidar, dist_to_wall, cone_angle):
+                print("🚧 Obstacle detected. Backing up...")
+                control.set_cmd_vel(-0.1, 0.0, 1.5)  # Back up
 
     if challengeLevel == 2:
+        print("🚦 Level 2 – Stop Sign Detection Enabled")
+        stop_sign_last_seen = 0
+        cooldown = 5  # Seconds between stops to prevent spamming
+        area_threshold = 5000  # Tune this number to match "close enough"
+ 
         while rclpy.ok():
             rclpy.spin_once(robot, timeout_sec=0.1)
+
+            # Step 1: Get the latest image from the camera
+            img = camera.rosImg_to_cv2()
+            camera.checkImageRelease()
+
+            # Step 2: Run stop sign detection
+            stop_detected, x1, y1, x2, y2 = camera.ML_predict_stop_sign(img)
+
+            # Step 3: If stop sign is detected and cooldown has passed
+            if stop_detected and (time.time() - stop_sign_last_seen > cooldown):
+                box_width = x2 - x1
+                box_height = y2 - y1
+                box_area = box_width * box_height
+                print(f"Stop sign box area: {box_area}  (width: {box_width}, height: {box_height})")
+                print(f"Stop sign detected. Bounding box area: {box_area}")
+
+                # Step 3: Only stop if close enough AND cooldown passed
+                if box_area > area_threshold and (time.time() - stop_sign_last_seen > cooldown):
+                    print("Close to stop sign — stopping for 3 seconds")
+                    control.set_cmd_vel(0.0, 0.0, 3.0)
+                    stop_sign_last_seen = time.time()
+
+            # Step 4: Slight delay to reduce CPU usage
             time.sleep(0.1)
-            # Write your solution here for challenge level 2
-            
+
     if challengeLevel == 3:
         while rclpy.ok():
             rclpy.spin_once(robot, timeout_sec=0.1)
             time.sleep(0.1)
-            # Write your solution here for challenge level 3 (or 3.5)
 
     if challengeLevel == 4:
         while rclpy.ok():
             rclpy.spin_once(robot, timeout_sec=0.1)
             time.sleep(0.1)
-            # Write your solution here for challenge level 4
 
     if challengeLevel == 5:
         while rclpy.ok():
             rclpy.spin_once(robot, timeout_sec=0.1)
             time.sleep(0.1)
-            # Write your solution here for challenge level 5
-            
+
 except KeyboardInterrupt:
     print("Keyboard interrupt received. Stopping...")
 
