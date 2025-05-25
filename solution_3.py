@@ -69,6 +69,7 @@ def stop_sign_detection(frame, camera, control,
         control.send_cmd_vel(0.0, 0.0)
         time.sleep(pause_duration)
         last_stop_sign_time = now
+        control.rotate(15, CCW)
         return True
 
 # === Start keyboard control in case it's needed for manual overrides (Levels 0–2) ===
@@ -132,10 +133,10 @@ try:
     if challengeLevel == 3:
 
         # ────────── TUNABLES ──────────
-        CRUISE_FWD      = 0.3      # m/s
-        KP_BEARING      = 0.015     # rad/s per degree
-        CORNER_RANGE    = 0.5      # m
-        COLLISION_RANGE = 0.2      # m
+        CRUISE_FWD      = 0.4      # m/s
+        KP_BEARING      = 0.03     # rad/s per degree
+        CORNER_RANGE    = 0.7      # m
+        COLLISION_RANGE = 0.3      # m
         CCW              = 1        # counter clockwise flag for Control.rotate()
 
         turning      = False
@@ -157,11 +158,8 @@ try:
                 #print("⚠️  Obstacle ahead — braking.")
                 #continue
 
-            # 3. Stop-sign handler  ← **single function call**
-            if not stop_detected:
-                stop_detected = stop_sign_detection(frame, camera, control)            
-            else:
-                continue
+            # # 3. Stop-sign handler  ← **single function call**
+            stop_sign_detection(frame, camera, control)
 
             # 4. April-Tag steering
             if tags and not turning:
@@ -173,9 +171,15 @@ try:
                     turning = True
                     last_turn_ts = time.time()
 
-                    if tag_id in [3, 5]:
+                    if tag_id in [3]:
                         print("⤿ Diagonal corner — turning 45° left")
                         control.rotate(45, CCW)
+                    elif tag_id in [5]:
+                        print("⤿ Diagonal corner — turning 135° left")
+                        control.rotate(135, CCW)
+                    #elif tag_id in [2]:
+                        #print("⤿ Diagonal corner — turning 45° left")
+                        #control.rotate(15, -CCW)
                     else:
                         print("↪️ Right-angle corner — turning 90° left")
                         control.rotate(90, CCW)
