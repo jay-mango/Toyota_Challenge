@@ -70,7 +70,7 @@ def stop_sign_detection(frame, camera, control,
         time.sleep(pause_duration)
         last_stop_sign_time = now
         control.rotate(15, -CCW)
-        control.set_cmd_vel(0.2, 0.0, 1)
+        control.set_cmd_vel(0.2, 0.0, 2)
         control.rotate(15, CCW)
         return True
 
@@ -137,7 +137,7 @@ try:
         # ────────── TUNABLES ──────────
         CRUISE_FWD      = 0.3      # m/s
         KP_BEARING      = 0.015     # rad/s per degree
-        CORNER_RANGE    = 0.6      # m
+        CORNER_RANGE    = 0.5      # m
         COLLISION_RANGE = 0.3      # m
         CCW              = 1        # counter clockwise flag for Control.rotate()
 
@@ -174,7 +174,7 @@ try:
 
                     if tag_id == 3:
                         print("⤿ Diagonal corner — turning 45° left")
-                        control.rotate(45, CCW)
+                        control.rotate(55, CCW)
                     elif tag_id == 5:
                         print("⤿ Diagonal corner — turning 135° left")
                         control.rotate(135, CCW)
