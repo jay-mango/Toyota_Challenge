@@ -69,6 +69,8 @@ def stop_sign_detection(frame, camera, control,
         control.send_cmd_vel(0.0, 0.0)
         time.sleep(pause_duration)
         last_stop_sign_time = now
+        control.rotate(15, -CCW)
+        control.set_cmd_vel(0.2, 0.0, 1)
         control.rotate(15, CCW)
         return True
 
@@ -133,9 +135,9 @@ try:
     if challengeLevel == 3:
 
         # ────────── TUNABLES ──────────
-        CRUISE_FWD      = 0.4      # m/s
-        KP_BEARING      = 0.03     # rad/s per degree
-        CORNER_RANGE    = 0.7      # m
+        CRUISE_FWD      = 0.3      # m/s
+        KP_BEARING      = 0.015     # rad/s per degree
+        CORNER_RANGE    = 0.6      # m
         COLLISION_RANGE = 0.3      # m
         CCW              = 1        # counter clockwise flag for Control.rotate()
 
@@ -163,26 +165,23 @@ try:
 
             # 4. April-Tag steering
             if tags and not turning:
-                tag_id, rng, bearing_deg, _ = min(tags, key=lambda t: t[1])   # Give the minimum distance to the tag
+                tag_id, rng, bearing_deg, _ = min(tags, key=lambda t: t[1])
 
-                # Turn left at corners
                 if rng < CORNER_RANGE and (time.time() - last_turn_ts) > 1.0:
                     print(f"↩️  Corner detected (tag {tag_id}, range={rng:.2f} m) — evaluating turn angle")
                     turning = True
                     last_turn_ts = time.time()
 
-                    if tag_id in [3]:
+                    if tag_id == 3:
                         print("⤿ Diagonal corner — turning 45° left")
                         control.rotate(45, CCW)
-                    elif tag_id in [5]:
+                    elif tag_id == 5:
                         print("⤿ Diagonal corner — turning 135° left")
                         control.rotate(135, CCW)
-                    #elif tag_id in [2]:
-                        #print("⤿ Diagonal corner — turning 45° left")
-                        #control.rotate(15, -CCW)
                     else:
-                        print("↪️ Right-angle corner — turning 90° left")
+                        print(f"↪️ Right-angle or unknown tag {tag_id} — turning 90° left")
                         control.rotate(90, CCW)
+
                     turning = False
                     continue
 
