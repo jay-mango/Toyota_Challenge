@@ -1,40 +1,86 @@
-# Toyota Software Innovation Challenge – Vehicle Automation
+# Toyota Software Innovation Challenge
 
-  
-## Code Documentation
-The documentation for the start code can be found here: 
+## Project Overview
 
-https://uofwaterloo.sharepoint.com/:w:/s/tm-eng-engineeringideasclinic/EViGUSkADoRAo0SAcYJBfS0B4q_ESYHth7W70o-UvChApw?e=BzTRPD
+This repository showcases the software solution developed for the Toyota Innovation Challenge, which focused on creating an autonomous navigation system for Automated Guided Vehicles (AGVs). Utilizing ROS 2, the team developed an intelligent control system capable of safely and efficiently moving vehicle components within a simulated factory environment. There was an emphasis on automation, computer vision recognition, and collision avoidance.
 
-## Getting Set Up
-Controlling the TurtleBots requires ROS2, which only works on Linux devices. To get around this on Windows or Mac systems you can install a Virtual Machine to emulate a Linux system. If you are already running Linux or have a VM installed, skip to the **Environment Setup** section.
+## Background
 
-### Installing a Virtual Machine
-**Note: Make sure you have at least 50GB of free space on your computer before going through this section. If this is an issue, please inform one of the Ideas Clinic staff.**
-1. Download and install VMWare Workstation 17 Player from [here](https://www.techspot.com/downloads/1969-vmware-player.html). <br><br> Note: if you have a Mac that runs with an Intel processor, use [this link](https://www.techspot.com/downloads/2755-vmware-fusion-mac.html) to download and install VMWare Fusion 13.5.2 (the Mac equivalent for Workstation).
-  - Just click next throughout the installation
+The goal was to address the real-world challenge of automating vehicle part transportation in manufacturing settings by applying software for robotics. Over 2 days, we were challenged to innovate and come up with unique solutions. The team focused on autonomous navigation and computer vision recognition with the hardware provided by the hosts.
 
-2. Download this Ubuntu 22.04 ISO file (the 64-Bit Desktop Image) or download and extract the ubuntu-22.04.4-desktop-amd64.iso zip file located in the Sharepoint folder.
+The solution integrated:
 
-3. Select “Create a new Virtual Machine”.
+- ROS 2 for robot software architecture
+- LiDAR for obstacle detection and collision avoidance
+- Computer vision (YOLOv8) for image recognition
+- IMU sensor for directional navigation and accurate turning
 
-4. Select “Installer disc image file (iso)” and select the downloaded Ubuntu 22.04 ISO file. (VMWare should automatically detect Ubuntu 22.04 as the operating system).  
+## Technologies Used
 
-5. Follow the on-screen prompts to progress through the installation (including choosing an install location and creating a Linux account). Do not change any options from the defaults, except setting your disk capacity to 50GB.
+The solution was developed using ROS 2 Foxy Fitzroy as the core software framework and implemented in Python 3. It integrated several key technologies to enable autonomous robot navigation and interaction:
 
-6. Before clicking “Finish”, click Customize Hardware. Set the memory to the maximum recommended amount (you can do so by clicking on the blue arrow), and set the number of processors being used to 4.  
+- LiDAR for real-time obstacle detection and collision avoidance
+- Ultralytics YOLOv8 for computer vision and visual object recognition
+- IMU sensor for sensor-based navigation, providing directional awareness and enabling accurate turns
+- Gazebo simulation for initial testing and development
+- TurtleBot3 for real-world implementation and validation
 
-7. The virtual machine will then “power on” to continue installation. Follow the on-screen prompts when required, leaving the default options. Note: please also install the VMWare Tools for Linux to complete the Easy Install. 
+## Media
 
-8. Once the installation is fully complete, you will be asked to restart the “computer”. This will not affect your system, only the virtual machine.
+![Stop sign]()
 
-9. Once the restart is complete, use the username and password you created as part of step 5 to sign in to your Linux account. You are now ready for the next step: setting up your environment for this challenge.
+![Robot](100250.png)
 
-### Environment Setup
-1. To set up your environment, you will have to first clone this repository. This will require git to be installed. Open up the terminal and enter the command: ```sudo apt install git```.
-2. Clone this repository into your home directory by running the command: ```git clone https://github.com/IdeasClinicUWaterloo/TIC_Software_Challenge_S25.git``` in your home directory. <br>**Note:** If you are prompted for a username and password, you will need to create a personal access token to sign in with. Find instructions for doing that [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic). Copy the token you make and use that as your password when you sign in.
-3. Once this is complete, you are ready to set up your Docker environment. Instructions for this can be found in the [turtlebot4_sim_docker](https://github.com/IdeasClinicUWaterloo/TIC_Software_Challenge_S25/tree/main/turtlebot4_sim_docker) folder. The README in this folder has all the instructions you need for setting up your simulation and connecting to an actual turtlebot.
+[Video: Stop sign Image recognition](https://drive.google.com/file/d/1iyR9DpQCuiBYvXAoetEY2VPKTsodWzcp/view?usp=drive_link)
 
-## Coding Your Solution
-Once the challenge is live, you will be able to see the challenge description for what your solution should look like. We have provided you a space to put your solution inside the solution.py file, though you are able to change the provided files or create your own to best suit your needs. There are six parts to the challenge, but you do not have to complete them all - focus on coming up with the best solutions you can for the whole challenge. 
-### Remember that you are not just marked on how far you get into the challenge, but your presentation and design choices as well.
+[Video: Full Autonomous Driving](https://drive.google.com/file/d/1TUBsWQnf_FG1uMiiiPaejTno2OFhLpOd/view?usp=drive_link)
+
+## Challenge Levels Completed
+
+| Level | Description                                           | Status           |
+|:-----:|-------------------------------------------------------|:----------------:|
+|   0   | Basic keyboard control of the robot                   | ✅ Completed     |
+|   1   | Keyboard control with LiDAR-based collision detection | ✅ Completed     |
+|   2   | Stop sign detection and response with YOLOv8          | ✅ Completed     |
+|   3   | Fully autonomous navigation and obstacle avoidance    | ✅ Completed     |
+|  3.5  | Trailer attachment navigation                         | ❌ Not attempted |
+|   4   | Single dynamic obstacle avoidance                     | ❌ Not attempted |
+|   5   | Dynamic obstacle avoidance                            | ❌ Not attempted |
+
+
+## Results
+
+| Challenge | Testing Environment        | Fastest Delivery Time   |
+|:---------:|----------------------------|:------------------------:|
+| Level 3   | Simulation & Real Robot    | 45.4 seconds            |
+
+
+(Consider adding demo visuals like GIFs or screenshots here to enhance understanding.)
+
+Key Functional Highlights
+
+✅ LiDAR-driven collision prevention system
+
+✅ Real-time YOLO-based stop sign detection
+
+✅ Fully autonomous pathfinding and obstacle negotiation
+
+🔄 Modular software design for extensibility and maintainability
+
+
+## Usage Notice
+
+This project was developed specifically for TMMC's robotics hardware and simulation environments. While not directly runnable without the provided hardware and frameworks.
+
+## Resources
+
+[TMMC Innovation Challenge Rubric](https://docs.google.com/document/d/1flLGNcA9dS5VKF4ATxY-NsXwTKZSBHlw/edit?tab=t.0)
+[Starter Repository](https://github.com/IdeasClinicUWaterloo/TIC_Software_Challenge_S25)
+[Slideshow Presentaion](https://docs.google.com/presentation/d/1sgjv9PdRfgcOw3ABQP494Ea3XXS_0NIl57ddAguurng/edit?usp=sharing)
+
+## Author
+
+Jayden Mangaroo, Mechatronics Engineering, University of Waterloo
+🔗[LinkedIn](www.linkedin.com/in/jayden-mangaroo)
+🧠 Interests: AI, Robotics, Automation, Product Development
+
