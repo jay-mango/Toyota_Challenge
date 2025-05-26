@@ -29,7 +29,7 @@ The solution was developed using ROS 2 Foxy Fitzroy as the core software framewo
 
 ![Stop sign Image Recognition](Stop_Sign_Image.png)
 
-![Robot](Robot_Image.png)
+![Robot in action](Robot_Image.png)
 
 [Video: Stop sign Image recognition](https://drive.google.com/file/d/1iyR9DpQCuiBYvXAoetEY2VPKTsodWzcp/view?usp=drive_link)
 
@@ -55,9 +55,7 @@ The solution was developed using ROS 2 Foxy Fitzroy as the core software framewo
 | Level 3   | Simulation & Real Robot    | 45.4 seconds            |
 
 
-(Consider adding demo visuals like GIFs or screenshots here to enhance understanding.)
-
-Key Functional Highlights
+## Key Functional Highlights
 
 ✅ LiDAR-driven collision prevention system
 
@@ -75,12 +73,16 @@ This project was developed specifically for TMMC's robotics hardware and simulat
 ## Resources
 
 [TMMC Innovation Challenge Rubric](https://docs.google.com/document/d/1flLGNcA9dS5VKF4ATxY-NsXwTKZSBHlw/edit?tab=t.0)
+
 [Starter Repository](https://github.com/IdeasClinicUWaterloo/TIC_Software_Challenge_S25)
+
 [Slideshow Presentaion](https://docs.google.com/presentation/d/1sgjv9PdRfgcOw3ABQP494Ea3XXS_0NIl57ddAguurng/edit?usp=sharing)
 
 ## Author
 
 Jayden Mangaroo, Mechatronics Engineering, University of Waterloo
-🔗[LinkedIn](www.linkedin.com/in/jayden-mangaroo)
-🧠 Interests: AI, Robotics, Automation, Product Development
+
+[LinkedIn](www.linkedin.com/in/jayden-mangaroo)
+
+Interests: AI, Robotics, Automation, Product Development
 
