@@ -27,9 +27,9 @@ The solution was developed using ROS 2 Foxy Fitzroy as the core software framewo
 
 ## Media
 
-![Stop sign]()
+![Stop sign Image Recognition](Stop_Sign_Image.png)
 
-![Robot](100250.png)
+![Robot](Robot_Image.png)
 
 [Video: Stop sign Image recognition](https://drive.google.com/file/d/1iyR9DpQCuiBYvXAoetEY2VPKTsodWzcp/view?usp=drive_link)
 
